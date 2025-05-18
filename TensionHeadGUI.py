@@ -3,6 +3,7 @@
 # Date: 2025-05-17
 
 import tkinter as tk
+import tkinter.ttk as ttk
 from tkinter.font import Font
 
 class TensionHeadGUI:
@@ -67,10 +68,25 @@ class TensionHeadGUI:
 
         def create_spin_frame(parent):
             frame = tk.Frame(parent, bg=self.bg)
-            spin_tens = tk.Spinbox(frame, from_=0, to=3, font=self.label_font, width=2)
-            spin_ones = tk.Spinbox(frame, from_=0, to=9, font=self.label_font, width=2)
-            spin_dot = tk.Spinbox(frame, from_=0, to=9, font=self.label_font, width=2)
-            dot = tk.Label(frame, text=".", font=self.label_font, bg=self.bg)
+            spin_tens = tk.Spinbox(frame,
+                                   from_=0,
+                                   to=3,
+                                   font=self.label_font,
+                                   width=2)
+            spin_ones = tk.Spinbox(frame,
+                                   from_=0,
+                                   to=9,
+                                   font=self.label_font,
+                                   width=2)
+            spin_dot = tk.Spinbox(frame,
+                                  from_=0,
+                                  to=9,
+                                  font=self.label_font,
+                                  width=2)
+            dot = tk.Label(frame,
+                           text=".",
+                           font=self.label_font,
+                           bg=self.bg)
 
             spin_tens.pack(side="left")
             spin_ones.pack(side="left")
@@ -80,39 +96,87 @@ class TensionHeadGUI:
             return frame, spin_tens, spin_ones, spin_dot
 
         # Pre Tension
-        pre_label = tk.Label(self.gui, text="Pre Tension: ", font=self.label_font, fg="black", bg=self.bg)
+        pre_label = tk.Label(self.gui,
+                             text="Pre Tension: ",
+                             font=self.label_font,
+                             fg="black",
+                             bg=self.bg)
         pre_spin_frame, pre_tens, pre_ones, pre_dot = create_spin_frame(self.gui)
-        pre_button = tk.Button(self.gui, text="off", font=self.label_font)
+        pre_button = tk.Button(self.gui,
+                               text="off",
+                               font=self.label_font)
 
-        pre_label.grid(row=row_idx, column=0, rowspan=rowspan, columnspan=2)
-        pre_spin_frame.grid(row=row_idx, column=2, rowspan=rowspan, columnspan=3)
-        pre_button.grid(row=row_idx, column=5, rowspan=rowspan)
+        pre_label.grid(row=row_idx,
+                       column=0,
+                       rowspan=rowspan,
+                       columnspan=2)
+        pre_spin_frame.grid(row=row_idx,
+                            column=2,
+                            rowspan=rowspan,
+                            columnspan=3)
+        pre_button.grid(row=row_idx,
+                        column=5,
+                        rowspan=rowspan)
 
         row_idx += rowspan
+
+        separator1 = ttk.Separator(self.gui, orient='horizontal')
+        separator1.grid(row=row_idx - 1, column=0, columnspan=6, sticky="ew")
 
         # Knot
-        knot_label = tk.Label(self.gui, text="Knot: ", font=self.label_font, fg="black", bg=self.bg)
+        knot_label = tk.Label(self.gui,
+                              text="Knot: ",
+                              font=self.label_font,
+                              fg="black",
+                              bg=self.bg)
         knot_spin_frame, knot_tens, knot_ones, knot_dot = create_spin_frame(self.gui)
-        knot_button = tk.Button(self.gui, text="off", font=self.label_font)
+        knot_button = tk.Button(self.gui,
+                                text="off",
+                                font=self.label_font)
 
-        knot_label.grid(row=row_idx, column=0, rowspan=rowspan, columnspan=2)
-        knot_spin_frame.grid(row=row_idx, column=2, rowspan=rowspan, columnspan=3)
-        knot_button.grid(row=row_idx, column=5, rowspan=rowspan)
+        knot_label.grid(row=row_idx,
+                        column=0,
+                        rowspan=rowspan,
+                        columnspan=2)
+        knot_spin_frame.grid(row=row_idx,
+                             column=2,
+                             rowspan=rowspan,
+                             columnspan=3)
+        knot_button.grid(row=row_idx,
+                         column=5,
+                         rowspan=rowspan)
 
         row_idx += rowspan
 
-        # Current Tension
-        cur_label = tk.Label(self.gui, text="Current tension: ", font=self.label_font, fg="black", bg=self.bg)
-        cur_spin_frame, cur_tens, cur_ones, cur_dot = create_spin_frame(self.gui)
-        cur_button = tk.Button(self.gui, text="Start tension", font=self.label_font)
+        separator2 = ttk.Separator(self.gui, orient='horizontal')
+        separator2.grid(row=row_idx - 1, column=0, columnspan=6, sticky="ew")
 
-        cur_label.grid(row=row_idx, column=0, rowspan=rowspan, columnspan=2)
-        cur_spin_frame.grid(row=row_idx, column=2, rowspan=rowspan, columnspan=3)
-        cur_button.grid(row=row_idx, column=5, rowspan=rowspan)
+        # Current Tension
+        cur_label = tk.Label(self.gui,
+                             text="Current tension: ",
+                             font=self.label_font,
+                             fg="black",
+                             bg=self.bg)
+        cur_spin_frame, cur_tens, cur_ones, cur_dot = create_spin_frame(self.gui)
+        cur_button = tk.Button(self.gui,
+                               text="Start tension",
+                               font=self.label_font)
+
+        cur_label.grid(row=row_idx,
+                       column=0,
+                       rowspan=rowspan,
+                       columnspan=2)
+        cur_spin_frame.grid(row=row_idx,
+                            column=2,
+                            rowspan=rowspan,
+                            columnspan=3)
+        cur_button.grid(row=row_idx,
+                        column=5,
+                        rowspan=rowspan)
 
         self.tension_list = [
-            pre_label, pre_spin_frame, pre_tens, pre_ones, pre_dot, pre_button,
-            knot_label, knot_spin_frame, knot_tens, knot_ones, knot_dot, knot_button,
+            pre_label, pre_spin_frame, pre_tens, pre_ones, pre_dot, pre_button, separator1,
+            knot_label, knot_spin_frame, knot_tens, knot_ones, knot_dot, knot_button, separator2,
             cur_label, cur_spin_frame, cur_tens, cur_ones, cur_dot, cur_button
         ]
 
