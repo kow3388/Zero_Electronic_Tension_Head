@@ -28,24 +28,27 @@ class TensionHeadGUI:
         self.top_bar_len = 3
         self.top_bar_idx = 0
         self.top_bar_list = []
-        self.InitTopList()
+        self._init_top_list()
 
         # Tension mode
         self.tension_list = []
+        self.tension_spinbox = []
         self.tension_idx = 0
-        self.InitTensionContent()
+        self._init_tension()
 
         # Calibration mode
         self.calibration_list = []
+        self.calibration_spinbox = []
         self.calibration_idx = 0
+        self.init_calibration = False
 
         # binding action
-        self.gui.bind("<Return>", self.ReturnAction)
-        self.gui.bind("<Left>", self.LeftAction)
-        self.gui.bind("<Right>", self.RightAction)
-        self.gui.bind("<Escape>", self.EscAction)
+        self.gui.bind("<Return>", self._return_action)
+        self.gui.bind("<Left>", self._left_action)
+        self.gui.bind("<Right>", self._right_action)
+        self.gui.bind("<Escape>", self._esc_action)
     
-    def InitTopList(self):
+    def _init_top_list(self):
         # create grid col first
         for i in range(2*self.top_bar_len):
             self.gui.columnconfigure(i, weight=1, uniform="equal")
@@ -62,38 +65,9 @@ class TensionHeadGUI:
             label.grid(row=0, column=2*i, columnspan=2, sticky="nsew", padx=0, pady=0)
             self.top_bar_list.append(label)
     
-    def InitTensionContent(self):
+    def _init_tension(self):
         row_idx = 1
         rowspan = 3
-
-        def create_spin_frame(parent):
-            frame = tk.Frame(parent, bg=self.bg)
-            spin_tens = tk.Spinbox(frame,
-                                   from_=0,
-                                   to=3,
-                                   font=self.label_font,
-                                   width=2)
-            spin_ones = tk.Spinbox(frame,
-                                   from_=0,
-                                   to=9,
-                                   font=self.label_font,
-                                   width=2)
-            spin_dot = tk.Spinbox(frame,
-                                  from_=0,
-                                  to=9,
-                                  font=self.label_font,
-                                  width=2)
-            dot = tk.Label(frame,
-                           text=".",
-                           font=self.label_font,
-                           bg=self.bg)
-
-            spin_tens.pack(side="left")
-            spin_ones.pack(side="left")
-            dot.pack(side="left")
-            spin_dot.pack(side="left")
-
-            return frame, spin_tens, spin_ones, spin_dot
 
         # Pre Tension
         pre_label = tk.Label(self.gui,
@@ -101,7 +75,7 @@ class TensionHeadGUI:
                              font=self.label_font,
                              fg="black",
                              bg=self.bg)
-        pre_spin_frame, pre_tens, pre_ones, pre_dot = create_spin_frame(self.gui)
+        pre_spin_frame, pre_tens, pre_ones, pre_dot = self._create_spin_frame()
         pre_button = tk.Button(self.gui,
                                text="off",
                                font=self.label_font)
@@ -129,7 +103,7 @@ class TensionHeadGUI:
                               font=self.label_font,
                               fg="black",
                               bg=self.bg)
-        knot_spin_frame, knot_tens, knot_ones, knot_dot = create_spin_frame(self.gui)
+        knot_spin_frame, knot_tens, knot_ones, knot_dot = self._create_spin_frame()
         knot_button = tk.Button(self.gui,
                                 text="off",
                                 font=self.label_font)
@@ -157,7 +131,7 @@ class TensionHeadGUI:
                              font=self.label_font,
                              fg="black",
                              bg=self.bg)
-        cur_spin_frame, cur_tens, cur_ones, cur_dot = create_spin_frame(self.gui)
+        cur_spin_frame, cur_tens, cur_ones, cur_dot = self._create_spin_frame()
         cur_button = tk.Button(self.gui,
                                text="Start tension",
                                font=self.label_font)
@@ -175,37 +149,163 @@ class TensionHeadGUI:
                         rowspan=rowspan)
 
         self.tension_list = [
-            pre_label, pre_spin_frame, pre_tens, pre_ones, pre_dot, pre_button, separator1,
-            knot_label, knot_spin_frame, knot_tens, knot_ones, knot_dot, knot_button, separator2,
-            cur_label, cur_spin_frame, cur_tens, cur_ones, cur_dot, cur_button
+            pre_label, pre_spin_frame, pre_button, separator1,
+            knot_label, knot_spin_frame, knot_button, separator2,
+            cur_label, cur_spin_frame, cur_button
         ]
-
+        self.tension_spinbox = [
+            pre_tens, pre_ones, pre_dot,
+            knot_tens, knot_ones, knot_dot,
+            cur_tens, cur_ones, cur_dot
+        ]
     
-    def ReturnAction(self, event=None):
+    def _init_calibration(self):
+        row_idx = 1
+        rowspan = 4
+
+        exp_label = tk.Label(self.gui,
+                             text="Expect tension: ",
+                             font=self.label_font,
+                             fg="black",
+                             bg=self.bg)
+        exp_spin_frame, exp_tens, exp_ones, exp_dot = self._create_spin_frame()
+        exp_button = tk.Button(self.gui,
+                               text="Start tension",
+                               font=self.label_font)
+        
+        exp_label.grid(row=row_idx,
+                       column=0,
+                       rowspan=rowspan,
+                       columnspan=2)
+        exp_spin_frame.grid(row=row_idx,
+                            column=2,
+                            rowspan=rowspan,
+                            columnspan=3)
+        exp_button.grid(row=row_idx,
+                        column=5,
+                        rowspan=rowspan)
+
+        row_idx += rowspan
+
+        separator1 = ttk.Separator(self.gui, orient='horizontal')
+        separator1.grid(row=row_idx - 1, column=0, columnspan=6, sticky="ew")
+
+        act_label = tk.Label(self.gui,
+                             text="Actual tension: ",
+                             font=self.label_font,
+                             fg="black",
+                             bg=self.bg)
+        act_spin_frame, act_tens, act_ones, act_dot = self._create_spin_frame()
+        act_button = tk.Button(self.gui,
+                               text="off",
+                               font=self.label_font)
+        
+        act_label.grid(row=row_idx,
+                       column=0,
+                       rowspan=rowspan,
+                       columnspan=2)
+        act_spin_frame.grid(row=row_idx,
+                            column=2,
+                            rowspan=rowspan,
+                            columnspan=3)
+        act_button.grid(row=row_idx,
+                        column=5,
+                        rowspan=rowspan)
+        
+        row_idx += rowspan
+
+        separator2 = ttk.Separator(self.gui, orient='horizontal')
+        separator2.grid(row=row_idx - 1, column=0, columnspan=6, sticky="ew")
+        
+        self.calibration_list = [
+            exp_label, exp_spin_frame, exp_button, separator1,
+            act_label, act_spin_frame, act_button, separator2
+        ]
+        self.calibration_spinbox = [
+            exp_tens, exp_ones, exp_dot,
+            act_tens, act_ones, act_dot
+        ]
+        self.init_calibration = True
+    
+    def _return_action(self, event=None):
         if self.cur_mode == "TopBar":
             self.cur_mode = self.top_bar[self.top_bar_idx]
 
-    def LeftAction(self, event=None):
+    def _left_action(self, event=None):
         if self.cur_mode == "TopBar":
-            self.MoveTopIdx(-1)
+            self._move_top_idx(-1)
     
-    def RightAction(self, event=None):
+    def _right_action(self, event=None):
         if self.cur_mode == "TopBar":
-            self.MoveTopIdx(1)
+            self._move_top_idx(1)
     
-    def MoveTopIdx(self, dir):
+    def _move_top_idx(self, dir):
         # turn back the background color of current idx
         self.top_bar_list[self.top_bar_idx].configure(bg="#dcdcdc")
 
         # move to next index & change color
         self.top_bar_idx = (self.top_bar_idx + dir + self.top_bar_len) % self.top_bar_len
+
+        self._show_content()
+        
         self.top_bar_list[self.top_bar_idx].configure(bg="gray")
     
-    def EscAction(self, event=None):
+    def _esc_action(self, event=None):
         if self.cur_mode == "TopBar":
-            self.CloseWindow()
+            self._closw_window()
         else:
             self.cur_mode = "TopBar"
     
-    def CloseWindow(self):
+    def _closw_window(self):
         self.gui.destroy()
+    
+    def _create_spin_frame(self):
+        frame = tk.Frame(self.gui, bg=self.bg)
+        spin_tens = tk.Spinbox(frame,
+                                from_=0,
+                                to=3,
+                                font=self.label_font,
+                                width=2)
+        spin_ones = tk.Spinbox(frame,
+                                from_=0,
+                                to=9,
+                                font=self.label_font,
+                                width=2)
+        spin_dot = tk.Spinbox(frame,
+                                from_=0,
+                                to=9,
+                                font=self.label_font,
+                                width=2)
+        dot = tk.Label(frame,
+                        text=".",
+                        font=self.label_font,
+                        bg=self.bg)
+
+        spin_tens.pack(side="left")
+        spin_ones.pack(side="left")
+        dot.pack(side="left")
+        spin_dot.pack(side="left")
+
+        return frame, spin_tens, spin_ones, spin_dot
+    
+    def _show_content(self):
+        # if on tension show only tension
+        if self.top_bar_idx == 0:
+            for ele in self.calibration_list:
+                ele.grid_remove()
+            
+            for ele in self.tension_list:
+                ele.grid()
+        # if on calibration and haven't initialed calibration
+        elif self.top_bar_idx == 1 and not self.init_calibration:
+            for ele in self.tension_list:
+                ele.grid_remove()
+            
+            self._init_calibration()
+        # if on calibration and have initialed
+        elif self.top_bar_idx == 1:
+            for ele in self.tension_list:
+                ele.grid_remove()
+            
+            for ele in self.calibration_list:
+                ele.grid()
