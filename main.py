@@ -6,6 +6,7 @@ import os
 import logging
 from logging import DEBUG, Formatter
 import tkinter as tk
+
 from TensionHeadGUI import TensionHeadGUI as GUI
 
 
@@ -21,7 +22,7 @@ if not os.path.isdir(log_dir):
 
 # logger format
 formatter = Formatter(
-    fmt="[%(asctime)s - %(levelname)s]: %(message)s", datefmt="%Y-%m-%d %H:%M"
+    fmt="[%(asctime)s - %(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M"
 )
 
 # on file

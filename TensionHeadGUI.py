@@ -6,6 +6,7 @@ import logging
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter.font import Font
+from tkinter.scrolledtext import ScrolledText
 
 
 logger = logging.getLogger("BETH")
@@ -24,7 +25,7 @@ class TensionHeadGUI:
 
         # set row of gui (1/10 for label, others for information)
         for i in range(10):
-            self.gui.rowconfigure(i, weight=1)
+            self.gui.rowconfigure(i, weight=1, uniform="equal")
 
         self.cur_mode = "TopBar"
 
@@ -47,6 +48,11 @@ class TensionHeadGUI:
         self.calibration_idx = 0
         self.init_calibration = False
 
+        # Log mode
+        self.logger_file = "./log/BETH.log"
+        self.log_list = []
+        self.init_log = False
+
         # binding action
         self.gui.bind("<Return>", self._return_action)
         self.gui.bind("<Left>", self._left_action)
@@ -56,7 +62,7 @@ class TensionHeadGUI:
     def _init_top_list(self):
         # create grid col first
         for i in range(2 * self.top_bar_len):
-            self.gui.columnconfigure(i, weight=1, uniform="equal")
+            self.gui.columnconfigure(i, weight=1, uniform="equal", minsize=350)
 
         for i in range(self.top_bar_len):
             color = "gray" if i == self.top_bar_idx else "#dcdcdc"
@@ -69,7 +75,7 @@ class TensionHeadGUI:
                 fg="black",
                 bg=color,
             )
-            label.grid(row=0, column=2 * i, columnspan=2, sticky="nsew", padx=0, pady=0)
+            label.grid(row=0, column=2 * i, columnspan=2, sticky="nsew")
             self.top_bar_list.append(label)
 
     def _init_tension(self):
@@ -209,16 +215,41 @@ class TensionHeadGUI:
             act_dot,
         ]
         self.init_calibration = True
+    
+    def _init_log(self):
+        # create text
+        self.log_text = ScrolledText(
+            self.gui, state="disabled", font=("Arial", 20), heigh=5
+        )
+
+        rowspan, colspan = 9, 6
+        self.log_text.grid(
+            row=1, column=0, rowspan=rowspan, columnspan=colspan, sticky="nswe"
+        )
+        self.log_list.append(self.log_text)
+        self._update_logger()
+    
+    def _update_logger(self):
+        # read logger
+        with open(self.logger_file, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        
+        self.log_text.config(state="normal")
+        self.log_text.delete(1.0, tk.END)
+        self.log_text.insert(tk.END, "".join(lines))
+        self.log_text.config(state="disable")
 
     def _return_action(self, event=None):
         if self.cur_mode == "TopBar":
             self.cur_mode = self.top_bar[self.top_bar_idx]
 
     def _left_action(self, event=None):
+        logger.info("Left Test")
         if self.cur_mode == "TopBar":
             self._move_top_idx(-1)
 
     def _right_action(self, event=None):
+        logger.info("Right Test")
         if self.cur_mode == "TopBar":
             self._move_top_idx(1)
 
@@ -263,6 +294,9 @@ class TensionHeadGUI:
         if self.top_bar_idx == 0:
             for ele in self.calibration_list:
                 ele.grid_remove()
+            
+            for ele in self.log_list:
+                ele.grid_remove()
 
             for ele in self.tension_list:
                 ele.grid()
@@ -270,14 +304,40 @@ class TensionHeadGUI:
         elif self.top_bar_idx == 1 and not self.init_calibration:
             for ele in self.tension_list:
                 ele.grid_remove()
+            
+            for ele in self.log_list:
+                ele.grid_remove()
 
             self._init_calibration()
         # if on calibration and have initialed
         elif self.top_bar_idx == 1:
             for ele in self.tension_list:
                 ele.grid_remove()
+            
+            for ele in self.log_list:
+                ele.grid_remove()
 
             for ele in self.calibration_list:
+                ele.grid()
+        # if on log and haven't initialed log
+        elif self.top_bar_idx == 2 and not self.init_log:
+            for ele in self.tension_list:
+                ele.grid_remove()
+            
+            for ele in self.calibration_list:
+                ele.grid_remove()
+            
+            self._init_log()
+        # log and initialed log
+        else:
+            for ele in self.tension_list:
+                ele.grid_remove()
+            
+            for ele in self.calibration_list:
+                ele.grid.remove()
+            
+            self._update_logger()
+            for ele in self.log_list:
                 ele.grid()
 
     def mainloop(self):
